@@ -1,0 +1,43 @@
+version: "3"
+services:
+  spring-boot-app:
+    image: alayahamza/spring-boot-app
+    container_name: spring-boot-app
+    deploy:
+      replicas: 5
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/studentstorage?useUnicode=true&characterEncoding=utf8&useSSL=false
+    ports:
+      - "5555:8080"
+    networks:
+      - net
+  db:
+    image: mariadb
+    container_name: db
+    deploy:
+      replicas: 2
+    ports:
+      - "3306:3306"
+    volumes:
+      - $PWD/db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=studentstorage
+      - MYSQL_USER=username
+      - MYSQL_PASSWORD=password
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8
+    networks:
+      - net
+  spring-boot-client:
+    image: alayahamza/spring-boot-client
+    container_name: spring-boot-client
+    deploy:
+      replicas: 15
+    ports:
+      - "4444:4444"
+    networks:
+      - net
+networks:
+  net:
